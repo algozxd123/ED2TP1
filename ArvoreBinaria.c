@@ -26,7 +26,7 @@ int pesquisa_rec(No* pNo, int c, item* it) {
 	}
 }
 
-int pesquisa(ArvoreBinaria* pAB, int c, item* it) {
+int pesquisa_abin(ArvoreBinaria* pAB, int c, item* it) {
 	return pesquisa_rec(pAB->pRaiz, c, it);
 }
 
@@ -64,7 +64,7 @@ void destroi(ArvoreBinaria* pAB) {
 	desalocaSubarvore(pAB->pRaiz);
 }
 
-int insere(ArvoreBinaria * pAB, item *it) {
+int insere_abin(ArvoreBinaria * pAB, item *it) {
 
 	comparacoes_index_abin++;
 	if (pAB->pRaiz == NULL) {
@@ -141,7 +141,7 @@ int ArvoreBin(int quantidade, char *filename, int chaveBusca, int *n_comparacoes
 			if(p_flag) printf("%d ",aux[i].chave);
 			it[i].chave = aux[i].chave;
 			it[i].pagina = j;
-			insere(&pAB, &it[i]);
+			insere_abin(&pAB, &it[i]);
 		}
 		j++;
 		transferencias_index_abin++;
@@ -157,7 +157,7 @@ int ArvoreBin(int quantidade, char *filename, int chaveBusca, int *n_comparacoes
 			if(p_flag) printf("%d ",aux[i].chave);
 			it[i].chave = aux[i].chave;
 			it[i].pagina = j;
-			insere(&pAB, &it[i]);
+			insere_abin(&pAB, &it[i]);
 		}
 
 		transferencias_index_abin++;
@@ -170,7 +170,7 @@ int ArvoreBin(int quantidade, char *filename, int chaveBusca, int *n_comparacoes
 
 	start = clock();
 	item res;
-	if (pesquisa(&pAB, chaveBusca, &res)) {
+	if (pesquisa_abin(&pAB, chaveBusca, &res)) {
 
 		long deslocamento;
 		deslocamento = sizeof (Registro) * TAM_PAGINA * (res.pagina);

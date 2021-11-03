@@ -11,7 +11,7 @@ void Inicializa(TipoApontador *arvore){
     *arvore = NULL;
 }
 
-int Pesquisa(TipoRegistro *x, TipoApontador ap){
+int pesquisa_ab(TipoRegistro *x, TipoApontador ap){
     long i=1;
     comparacoes_pesquisa_ab++;
     if(ap == NULL){
@@ -32,9 +32,9 @@ int Pesquisa(TipoRegistro *x, TipoApontador ap){
 
     comparacoes_pesquisa_ab++;
     if(x->chave < ap->r[i-1].chave){
-        Pesquisa(x, ap->p[i-1]);
+        pesquisa_ab(x, ap->p[i-1]);
     }else{
-        Pesquisa(x, ap->p[i]);
+        pesquisa_ab(x, ap->p[i]);
     }
 }
 
@@ -135,7 +135,7 @@ void Ins(TipoRegistro reg, TipoApontador ap, short *cresceu, TipoRegistro *regRe
     *apRetorno = apTemp;
 }
 
-void Insere(TipoRegistro reg, TipoApontador *ap){
+void insere_ab(TipoRegistro reg, TipoApontador *ap){
     short cresceu;
     TipoRegistro regRetorno;
     TipoPagina *apRetorno, *apTemp;
@@ -173,7 +173,7 @@ int ab(int quantidade, char* filename, int chaveBusca, int *n_comparacoes_index_
         transferencias_index_ab++;
         comparacoes_index_ab++;
         if(p_flag) printf("%d ",x.chave);
-        Insere(x, &arvore);
+        insere_ab(x, &arvore);
         i++;
     }
 
@@ -183,7 +183,7 @@ int ab(int quantidade, char* filename, int chaveBusca, int *n_comparacoes_index_
     *tempo_index_ab = ((double) (end - start)) / CLOCKS_PER_SEC;
 
     start = clock();
-    if(Pesquisa(&x, arvore)){
+    if(pesquisa_ab(&x, arvore)){
         printf("Item de chave %d foi localizado\n",x.chave);
         *n_transferencias_index_ab = transferencias_index_ab;
         *n_comparacoes_index_ab = comparacoes_index_ab;

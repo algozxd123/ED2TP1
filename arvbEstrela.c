@@ -8,7 +8,7 @@ int comparacoes_index_abe = 0;
 int comparacoes_pesquisa_abe = 0;
 
 //Pesquisa quase identica ao slide, so mudou o tipo de retorno de void para Int
-int pesquisa(TRegistro *x, PontPag *pagina){
+int pesquisa_abe(TRegistro *x, PontPag *pagina){
     int i;
     PontPag Pag;
     Pag = *pagina;
@@ -22,9 +22,9 @@ int pesquisa(TRegistro *x, PontPag *pagina){
         }
         comparacoes_pesquisa_abe++;
         if(x->chave < Pag->UU.U0.ri[i-1])
-            return pesquisa(x, &Pag->UU.U0.pi[i-1]);
+            return pesquisa_abe(x, &Pag->UU.U0.pi[i-1]);
         else
-            return pesquisa(x, &Pag->UU.U0.pi[i]);
+            return pesquisa_abe(x, &Pag->UU.U0.pi[i]);
     }
     i = 1;
     while(i < Pag->UU.U1.ne && x->chave > Pag->UU.U1.re[i-1].chave){
@@ -135,7 +135,7 @@ void InsereAux(TRegistro Reg, PontPag pagina, short *Cresceu, Chave *ChaveRetorn
     else{
         //ESSA PARTE DO CODIGO SE REFERE A INSERCAO NAS PAGINAS EXTERNAS
         comparacoes_index_abe++;
-        if(pesquisa(&Reg, &pagina))
+        if(pesquisa_abe(&Reg, &pagina))
             //Nao faz sentido colocar um TRegistro que ja existe
             return;
         //Verificar aonde o TRegistro entrara na pagina externa
@@ -214,7 +214,7 @@ void InsereAux(TRegistro Reg, PontPag pagina, short *Cresceu, Chave *ChaveRetorn
     return;
 }
 //Inicio do processo de Insercao
-void _insere(TRegistro x, PontPag *arvore){
+void _insere_abe(TRegistro x, PontPag *arvore){
     //Caso a arvore esteja vazia, iniciar a pagina Interna e as paginas externas
     comparacoes_index_abe++;
     if(*arvore == NULL){
@@ -277,7 +277,7 @@ int abe(int quantidade, char* filename, int chaveBusca, int *n_comparacoes_index
     while(fread(&x, sizeof(x), 1, arq) == 1 && i<quantidade){
         transferencias_index_abe++;
         if(p_flag) printf("%d ",x.chave);
-        _insere(x, &arvore);
+        _insere_abe(x, &arvore);
         i++;
     }
 
@@ -287,7 +287,7 @@ int abe(int quantidade, char* filename, int chaveBusca, int *n_comparacoes_index
     *tempo_index_abe = ((double) (end - start)) / CLOCKS_PER_SEC;
 
     start = clock();
-    if(pesquisa(&x, &arvore)){
+    if(pesquisa_abe(&x, &arvore)){
         printf("Item de chave %d foi localizado\n",x.chave);
         *n_transferencias_index_abe = transferencias_index_abe;
         *n_comparacoes_index_abe = comparacoes_index_abe;
