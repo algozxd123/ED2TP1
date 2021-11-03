@@ -1,0 +1,9 @@
+*.py
+main
+Makefile
+*.sh
+*.zip
+*.bin
+*.txt
+gerador
+.vscode/settings.json
