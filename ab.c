@@ -124,16 +124,15 @@ void Ins(TipoRegistro reg, TipoApontador ap, short *cresceu, TipoRegistro *regRe
         InsereNaPagina(ap, *regRetorno, *apRetorno);
     }else{
         InsereNaPagina(apTemp, *regRetorno, *apRetorno);
-
-        for(int j = M+2; j <= MM; j++){
-            comparacoes_index_ab++;
-            InsereNaPagina(apTemp, ap->r[j-1], ap->p[j]);
-        }
-        ap->n = M;
-        apTemp->p[0] = ap->p[M+1];
-        *regRetorno = ap->r[M];
-        *apRetorno = apTemp;
     }
+    for(int j = M+2; j <= MM; j++){
+        comparacoes_index_ab++;
+        InsereNaPagina(apTemp, ap->r[j-1], ap->p[j]);
+    }
+    ap->n = M;
+    apTemp->p[0] = ap->p[M+1];
+    *regRetorno = ap->r[M];
+    *apRetorno = apTemp;
 }
 
 void Insere(TipoRegistro reg, TipoApontador *ap){
