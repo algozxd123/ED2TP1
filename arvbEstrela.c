@@ -9,6 +9,7 @@ int comparacoes_pesquisa_abe = 0;
 
 //Pesquisa quase identica ao slide, so mudou o tipo de retorno de void para Int
 int pesquisa_abe(TRegistro *x, PontPag *pagina){
+    /**
     int i;
     PontPag Pag;
     Pag = *pagina;
@@ -39,10 +40,34 @@ int pesquisa_abe(TRegistro *x, PontPag *pagina){
     }
     else
         return 0;
+    */
+    int i;
+    PontPag Pag;
+    Pag = *pagina;
+    if((*pagina)->Pt == Interna){
+        i = 1;
+        while(i < Pag->UU.U0.ni && x->chave > Pag->UU.U0.ri[i-1])
+            i++;
+        if(x->chave < Pag->UU.U0.ri[i-1])
+            return pesquisa_abe(x, &Pag->UU.U0.pi[i-1]);
+        else
+            return pesquisa_abe(x, &Pag->UU.U0.pi[i]);
+    }
+    i = 1;
+    while(i < Pag->UU.U1.ne && x->chave > Pag->UU.U1.re[i-1].chave){
+        i++;
+    }
+    if(x->chave == Pag->UU.U1.re[i-1].chave){
+        *x = Pag->UU.U1.re[i-1];
+        return 1;
+    }
+    else
+        return 0;
 }   
 
 //Parte da Insercao da arvore B para paginas internas (vulgo arvore B) identico ao slide
 void InsereNaPag(PontPag pagina, Chave Reg, PontPag paginaDireita){
+    /**
     short NotFind;
     int k = pagina->UU.U0.ni;
     comparacoes_index_abe++;
@@ -62,10 +87,29 @@ void InsereNaPag(PontPag pagina, Chave Reg, PontPag paginaDireita){
     pagina->UU.U0.ri[k] = Reg;
     pagina->UU.U0.pi[k+1] = paginaDireita;
     pagina->UU.U0.ni++;
+    */
+
+    short NotFind;
+    int k = pagina->UU.U0.ni;
+    while(NotFind){
+        if(Reg >= pagina->UU.U0.ri[k-1]){
+            NotFind = 0;
+            break;
+        }
+        pagina->UU.U0.ri[k] = pagina->UU.U0.ri[k-1];
+        pagina->UU.U0.pi[k+1] = pagina->UU.U0.pi[k];
+        k--;
+        if(k<1)
+            NotFind = 0;
+    }
+    pagina->UU.U0.ri[k] = Reg;
+    pagina->UU.U0.pi[k+1] = paginaDireita;
+    pagina->UU.U0.ni++;
 }
 
 //Outra parte da insercao da Arvore B para paginas internas (vulgo arvore B), identico ao slide
 void InsereAuxArvB(PontPag pagina, short *Cresceu, Chave *ChaveRetorno, PontPag *pagRetorno){
+    /**
     int j, i = 1;
     PontPag pagTemp;
     while(i < pagina->UU.U0.ni && *ChaveRetorno > pagina->UU.U0.ri[i-1]){
@@ -108,10 +152,89 @@ void InsereAuxArvB(PontPag pagina, short *Cresceu, Chave *ChaveRetorno, PontPag 
     pagina->UU.U0.pi[0] = pagina->UU.U0.pi[M+1];
     *ChaveRetorno = pagina->UU.U0.ri[M];
     *pagRetorno = pagTemp;
+    */
+    int j, i = 1;
+    PontPag pagTemp;
+    while(i < pagina->UU.U0.ni && *ChaveRetorno > pagina->UU.U0.ri[i-1])
+        i++;
+    if(*ChaveRetorno == pagina->UU.U0.ri[i-1]){
+        *Cresceu = 0;
+        return;
+    }
+    if(*ChaveRetorno < pagina->UU.U0.ri[i-1])
+        i--;
+    if(!*Cresceu)
+        return;
+    if(pagina->UU.U0.ni < M + M){
+        //printf("Chave = %d\n", *ChaveRetorno);
+        InsereNaPag(pagina, *ChaveRetorno, *pagRetorno);
+        *Cresceu = 0;
+        return;
+    }
+    pagTemp = (PontPag) malloc(sizeof(Pagina));
+    pagTemp->Pt = Interna;
+    pagTemp->UU.U0.ni = 0;
+    pagTemp->UU.U0.pi[0] = NULL;
+    if(i < M+1){
+        int k = M-1;
+        int j;
+        //Caso o registro a ser inserido seja menor que a mediana, entrara na pagina a esquerda
+        if(i < M + 1){
+            for(j = pagina->UU.U0.ni - 1; j > M - 1; j--){
+                pagTemp->UU.U0.ri[k] = pagina->UU.U0.ri[j];
+                pagTemp->UU.U0.pi[k+1] = pagina->UU.U0.pi[j+1];
+                pagTemp->UU.U0.ni++;
+                k--;
+            }
+            pagina->UU.U0.ni = M;
+            if(i == M){
+                pagTemp->UU.U0.pi[0] = *pagRetorno;
+                *pagRetorno = pagTemp;
+            }
+            else{
+                pagTemp->UU.U0.pi[0] = pagina->UU.U0.pi[j+1];
+                Chave aux = pagina->UU.U0.ri[j];
+                for(int u = M; u > i; u--){
+                    pagina->UU.U0.ri[u] = pagina->UU.U0.ri[u-1];
+                    pagina->UU.U0.pi[u+1] = pagina->UU.U0.pi[u];
+                }
+                pagina->UU.U0.ri[i] = *ChaveRetorno;
+                pagina->UU.U0.pi[i+1] = *pagRetorno;
+                *pagRetorno = pagTemp;
+                *ChaveRetorno = aux;
+
+            }
+        
+            /*
+            pagina->UU.U1.re[i] = Reg;
+            *Cresceu = 1;
+            *ChaveRetorno = pagDireita->UU.U1.re[0].chave;
+            *pagRetorno = pagDireita;
+                //Subir a mediana e passar a referencia
+            */
+        }
+        
+
+
+        /*
+        InsereNaPag(pagTemp, pagina->UU.U0.ri[M + M - 1], pagina->UU.U0.pi[M + M]);
+        pagina->UU.U0.ni--;
+        InsereNaPag(pagina, *ChaveRetorno, *pagRetorno);
+        */
+    }
+    else
+        InsereNaPag(pagina, *ChaveRetorno, *pagRetorno);
+    for(j = M + 2; j <= M + M; j++)
+        InsereNaPag(pagTemp, pagina->UU.U0.ri[j-1], pagina->UU.U0.pi[j]);
+    pagina->UU.U0.ni = M;
+    pagina->UU.U0.pi[0] = pagina->UU.U0.pi[M+1];
+    *ChaveRetorno = pagina->UU.U0.ri[M];
+    *pagRetorno = pagTemp;
 }
 
 //Insercao para a arvore B*
 void InsereAux(TRegistro Reg, PontPag pagina, short *Cresceu, Chave *ChaveRetorno, PontPag *pagRetorno){
+    /**
     int i = 1;
     //Ira percorrer a Estrutura da Arvore ate achar o local correto do TRegistro
     comparacoes_index_abe++;
@@ -212,9 +335,93 @@ void InsereAux(TRegistro Reg, PontPag pagina, short *Cresceu, Chave *ChaveRetorn
         }
     }
     return;
+    */
+
+    int i = 1;
+    //Ira percorrer a Estrutura da Arvore ate achar o local correto do registro
+    if((pagina->Pt == Interna)){
+        while(i < pagina->UU.U0.ni && Reg.chave > pagina->UU.U0.ri[i-1])
+            i++;
+        if(Reg.chave < pagina->UU.U0.ri[i-1])
+            i--;
+        //Recursao para acessar a proxima pagina
+        InsereAux(Reg, pagina->UU.U0.pi[i], Cresceu, ChaveRetorno, pagRetorno);
+        if(*Cresceu){
+            //Insercao igual ArvB normal
+            InsereAuxArvB(pagina, Cresceu, ChaveRetorno, pagRetorno);
+        }
+        return;
+    }
+    else{
+        //ESSA PARTE DO CODIGO SE REFERE A INSERCAO NAS PAGINAS EXTERNAS
+        if(pesquisa_abe(&Reg, &pagina))
+            //Nao faz sentido colocar um registro que ja existe
+            return;
+        //Verificar aonde o registro entrara na pagina externa
+        while(i < pagina->UU.U1.ne && Reg.chave > pagina->UU.U1.re[i-1].chave)
+            i++;
+        if(Reg.chave < pagina->UU.U1.re[i-1].chave)
+            i--;
+        //Caso a pagina tenha menos de 2M itens
+        if(pagina->UU.U1.ne < M + M){
+            for(int j = pagina->UU.U1.ne; j > i; j--){
+                pagina->UU.U1.re[j] = pagina->UU.U1.re[j-1];
+            }
+            pagina->UU.U1.ne++;
+            pagina->UU.U1.re[i] = Reg;
+            *Cresceu = 0;
+            return;
+        }
+        //Caso a pagina tenha 2M itens, sera necessario fazer rearranjo das paginas
+        else{
+            PontPag pagDireita = (PontPag) malloc(sizeof(Pagina));
+            pagDireita->Pt = Externa;
+            pagDireita->UU.U1.ne = 0;
+            int k = M;
+            //Caso o registro a ser inserido seja menor que a mediana, entrara na pagina a esquerda
+            if(i < M + 1){
+                for(int j = pagina->UU.U1.ne - 1; j >= M - 1; j--){
+                    pagDireita->UU.U1.re[k] = pagina->UU.U1.re[j];
+                    pagDireita->UU.U1.ne++;
+                    k--;
+                    pagina->UU.U1.re[j] = pagina->UU.U1.re[j-1];
+                }
+                pagina->UU.U1.ne = M;
+                for(int j = M-1; j > i; j--)
+                    pagina->UU.U1.re[j] = pagina->UU.U1.re[j-1];
+                pagina->UU.U1.re[i] = Reg;
+                *Cresceu = 1;
+                *ChaveRetorno = pagDireita->UU.U1.re[0].chave;
+                *pagRetorno = pagDireita;
+                //Subir a mediana e passar a referencia
+            }
+            else{
+                //Caso o registro a ser inserido seja maior ou igual a mediana, entrara na pagina a direita
+                for(int j = pagina->UU.U1.ne - 1; j > M - 1; j--){
+                    pagDireita->UU.U1.re[k] = pagina->UU.U1.re[j];
+                    pagDireita->UU.U1.ne++;
+                    k--;
+                    pagina->UU.U1.re[j] = pagina->UU.U1.re[j-1];
+                }
+                pagina->UU.U1.ne = M;
+                if(i - M != 0 && pagDireita->UU.U1.re[i-M].chave < Reg.chave){
+                    for(int j = 0; j < i-M; j++)
+                        pagDireita->UU.U1.re[j] = pagDireita->UU.U1.re[j+1];
+                }
+                pagDireita->UU.U1.ne++;
+                pagDireita->UU.U1.re[i-M] = Reg;
+                *Cresceu = 1;
+                *ChaveRetorno = pagDireita->UU.U1.re[0].chave;
+                *pagRetorno = pagDireita;
+                //Subir a mediana e passar a referencia
+            }
+        }
+    }
+    return;
 }
 //Inicio do processo de Insercao
 void _insere_abe(TRegistro x, PontPag *arvore){
+    /**
     //Caso a arvore esteja vazia, iniciar a pagina Interna e as paginas externas
     comparacoes_index_abe++;
     if(*arvore == NULL){
@@ -245,6 +452,44 @@ void _insere_abe(TRegistro x, PontPag *arvore){
     //Funcao auxiliar para Insercao
     InsereAux(x, *arvore, &Cresceu, &ChaveRetorno, &pagRetorno);
     comparacoes_index_abe++;
+    if(Cresceu){
+        Pagina *pagTemp = (PontPag) malloc(sizeof(Pagina));
+        pagTemp->Pt = Interna;
+        pagTemp->UU.U0.ni = 1;
+        pagTemp->UU.U0.ri[0] = ChaveRetorno;
+        pagTemp->UU.U0.pi[1] = pagRetorno;
+        pagTemp->UU.U0.pi[0] = *arvore;
+        *arvore = pagTemp;
+    }
+    return;
+    */
+    //Caso a arvore esteja vazia, iniciar a pagina Interna e as paginas externas
+    if(*arvore == NULL){
+        Pagina *pagNova = NULL;
+        Pagina *pagDireita = NULL;
+        Pagina *pagEsquerda = NULL;
+        pagNova = (PontPag) malloc(sizeof(Pagina));
+        pagNova->Pt = Interna;
+        pagNova->UU.U0.ni = 1;
+        pagNova->UU.U0.ri[0] = x.chave;
+        pagEsquerda = (Pagina*) malloc(sizeof(Pagina));
+        pagNova->UU.U0.pi[0] = pagEsquerda;
+        pagEsquerda->Pt = Externa;
+        pagEsquerda->UU.U1.ne = 0;
+        pagDireita = (Pagina*) malloc(sizeof(Pagina));
+        pagNova->UU.U0.pi[1] = pagDireita;
+        pagDireita->Pt = Externa;
+        pagDireita->UU.U1.ne = 1;
+        pagDireita->UU.U1.re[0] = x;
+        *arvore = pagNova;
+        return;
+    }
+    //Caso nao, Prosseguir o procedimento
+    short Cresceu = 0;
+    Chave ChaveRetorno;
+    Pagina *pagRetorno;
+    //Funcao auxiliar para Insercao
+    InsereAux(x, *arvore, &Cresceu, &ChaveRetorno, &pagRetorno);
     if(Cresceu){
         Pagina *pagTemp = (PontPag) malloc(sizeof(Pagina));
         pagTemp->Pt = Interna;
