@@ -24,6 +24,7 @@ int pesquisa(tipoindice tab[], int tam, tipoitem* item, FILE *arq){
         else {
             fseek(arq, 0, SEEK_END);
             quantitens = (ftell(arq)/sizeof(tipoitem))%ITENSPAGINA;
+            if(quantitens == 0) quantitens = ITENSPAGINA;
         }
 
         desloc = (tab[i-1].posicao-1)*ITENSPAGINA*sizeof(tipoitem);
