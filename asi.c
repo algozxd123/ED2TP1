@@ -11,7 +11,7 @@ int pesquisa(tipoindice tab[], int tam, tipoitem* item, FILE *arq){
     long desloc;
 
     i = 0;
-    while(i < tam && tab[i].chave <= item->chave) {
+    while(i < tam && tab[i].chave <= item->chave) { // Itera sobre as chaves da tabela, estas que representam a página
         comparacoes_pesquisa_asi++;
         i++;
     }
@@ -20,7 +20,8 @@ int pesquisa(tipoindice tab[], int tam, tipoitem* item, FILE *arq){
     if(i == 0) return 0;
     else{
         comparacoes_pesquisa_asi++;
-        if(i < tam) quantitens = ITENSPAGINA;
+        if(i < tam) quantitens = ITENSPAGINA; // Se a página em que a iteração parou não for a última, então o tamanho
+                                              // Da página é normal, se não, então calcular quantos itens tem pelo else
         else {
             fseek(arq, 0, SEEK_END);
             quantitens = (ftell(arq)/sizeof(tipoitem))%ITENSPAGINA;
@@ -28,15 +29,15 @@ int pesquisa(tipoindice tab[], int tam, tipoitem* item, FILE *arq){
         }
 
         desloc = (tab[i-1].posicao-1)*ITENSPAGINA*sizeof(tipoitem);
-        fseek(arq, desloc, SEEK_SET);
-        fread(&pagina, sizeof(tipoitem), quantitens, arq);
+        fseek(arq, desloc, SEEK_SET); //Pesquisando no arquivo baseado no tamanho da página e a posição da chave que a representa
+        fread(&pagina, sizeof(tipoitem), quantitens, arq); //Página recuperada pelo que foi visto da tabela
         transferencias_pesquisa_asi += quantitens;
 
-        for(i=0; i < quantitens; i++){
+        for(i=0; i < quantitens; i++){ // Varrendo a página em busca do valor
             comparacoes_pesquisa_asi++;
             if(pagina[i].chave == item->chave){
-                *item = pagina[i];
-                return 1;
+                *item = pagina[i]; 
+                return 1; // Valor foi encontrado e atribuído ao ponteiro *item
             }
         }
         return 0;
@@ -61,13 +62,13 @@ int asi(int maxTabela, char* filename, int chaveBusca, int *n_comparacoes_index_
     pos = 0;
 
     int i = 0;
-    while(fread(&x, sizeof(x), 1, arq) == 1 && i<maxTabela){
+    while(fread(&x, sizeof(x), 1, arq) == 1 && i<maxTabela){ //Leitura dos itens no arquivo e construção da tabela
         transferencias_index_asi++;
         cont++;
         if(p_flag) printf("%d ",x.chave);
         comparacoes_index_asi++;
         if(cont%ITENSPAGINA == 1){
-            tabela[pos].chave = x.chave;
+            tabela[pos].chave = x.chave; // Armazenando a chave do primeiro elemento de cada página em cada espaço da tabela 
             tabela[pos].posicao = pos+1;
             pos++;
         }
@@ -80,7 +81,7 @@ int asi(int maxTabela, char* filename, int chaveBusca, int *n_comparacoes_index_
     *tempo_index_asi = ((double) (end - start)) / CLOCKS_PER_SEC;
 
     start = clock();
-    if(pesquisa(tabela, pos, &x, arq)){
+    if(pesquisa(tabela, pos, &x, arq)){ //Pesquisa com sucesso ou sem sucesso + dados
         printf("Item de chave %d foi localizado\n",x.chave);
 
         *n_transferencias_index_asi = transferencias_index_asi;
