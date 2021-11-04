@@ -5,32 +5,32 @@ int transferencias_pesquisa_abin = 0;
 int comparacoes_index_abin = 0;
 int comparacoes_pesquisa_abin = 0;
 
-int pesquisa_rec(No* pNo, int c, item* it) {
+int pesquisa_rec(No* pNo, int c, item* it) { // Pesquisa pelos nós da árvore
 	if (pNo == NULL) return 0;
-	if (pNo->valor.chave < c) {
+	if (pNo->valor.chave < c) { //Valor menor, ir para esquerda
 
 		comparacoes_pesquisa_abin++;
 
 		return pesquisa_rec(pNo->pEsq, c, it);
 
-	} else if (pNo->valor.chave > c) {
+	} else if (pNo->valor.chave > c) { // Valor maior, ir para direita
 
 		comparacoes_pesquisa_abin++;
 
 		return pesquisa_rec(pNo->pDir, c, it);
 
-	} else {
+	} else { // Valor igual, retornar 1 para confirmar o sucesso e a chave pelo ponteiro it
 		it->chave = pNo->valor.chave;
 		it->pagina = pNo->valor.pagina;
 		return 1;
 	}
 }
 
-int pesquisa_abin(ArvoreBinaria* pAB, int c, item* it) {
+int pesquisa_abin(ArvoreBinaria* pAB, int c, item* it) { //Pesquisa pela árvore, começando da raiz
 	return pesquisa_rec(pAB->pRaiz, c, it);
 }
 
-int pesquisa_Sequencial(Registro * pagina, Registro* reg, int tam) {
+int pesquisa_Sequencial(Registro * pagina, Registro* reg, int tam) { // Pesquisa sequencial 
 
 	for (int i = 0; i < tam; i++) {
 		
@@ -49,7 +49,7 @@ int pesquisa_Sequencial(Registro * pagina, Registro* reg, int tam) {
 	return 0; // não encontrado
 }
 
-void desalocaSubarvore(No* pN) {
+void desalocaSubarvore(No* pN) { //Desaloca os ponteiros que constituem a árvore recursivamente
 	if (pN == NULL) {
 		return;
 	} else {
@@ -59,21 +59,21 @@ void desalocaSubarvore(No* pN) {
 	}
 }
 
-void destroi(ArvoreBinaria* pAB) {
+void destroi(ArvoreBinaria* pAB) { // Destruição da árvore a partir de sua raiz
 	assert(pAB);
 	desalocaSubarvore(pAB->pRaiz);
 }
 
-int insere_abin(ArvoreBinaria * pAB, item *it) {
+int insere_abin(ArvoreBinaria * pAB, item *it) { //Inserção dos nós em uma árvore
 
 	comparacoes_index_abin++;
-	if (pAB->pRaiz == NULL) {
+	if (pAB->pRaiz == NULL) { //Se a árvore é vazia, criar o nó raiz
 		pAB->pRaiz = (No *) calloc(1, sizeof (No));
 		pAB->pRaiz->valor.chave = it->chave;
 		pAB->pRaiz->valor.pagina = it->pagina;
 		return 1;
 	}
-	No* pPai = pAB->pRaiz;
+	No* pPai = pAB->pRaiz; //Criação de variável que irá percorrer a árvore até a folha em que o registro será inserido
 	int verdade = 0;
 	comparacoes_index_abin++;
 	while (!verdade) {
@@ -99,7 +99,7 @@ int insere_abin(ArvoreBinaria * pAB, item *it) {
 		}
 	}
 	comparacoes_index_abin++;
-	if (pPai->valor.chave < it->chave) {
+	if (pPai->valor.chave < it->chave) { // Chegou em um nó folha ou com vaga pra filho, decidir onde irá ser colocado
 
 		pPai->pEsq = (No *) calloc(1, sizeof (No));
 		pPai->pEsq->valor.chave = it->chave;
@@ -115,7 +115,7 @@ int insere_abin(ArvoreBinaria * pAB, item *it) {
 }
 
 int ArvoreBin(int quantidade, char *filename, int chaveBusca, int *n_comparacoes_index_abin, int *n_transferencias_index_abin, int *n_comparacoes_pesquisa_abin, int *n_transferencias_pesquisa_abin, double *tempo_index_abin, double *tempo_pesquisa_abin, int p_flag) {	
-	ArvoreBinaria pAB;
+	ArvoreBinaria pAB; //Criação da árvore vazia
 	pAB.pRaiz = NULL;
 
 	Registro aux[TAM_PAGINA];
@@ -126,7 +126,7 @@ int ArvoreBin(int quantidade, char *filename, int chaveBusca, int *n_comparacoes
 	start = clock();
 
 	FILE *fp;
-	if((fp = fopen(filename,"rb")) == NULL){
+	if((fp = fopen(filename,"rb")) == NULL){ // Leitura do arquivo binário
         printf("Erro na abertura do arquivo\n");
         return 0;
     }
@@ -134,21 +134,21 @@ int ArvoreBin(int quantidade, char *filename, int chaveBusca, int *n_comparacoes
 	int j = 0;
 	int n_pages = quantidade / TAM_PAGINA;
 	int resto = quantidade % TAM_PAGINA;
-	while (fread(&aux, sizeof (Registro), TAM_PAGINA, fp) == TAM_PAGINA && j < n_pages) {
+	while (fread(&aux, sizeof (Registro), TAM_PAGINA, fp) == TAM_PAGINA && j < n_pages) { //Leitura das páginas 
 		comparacoes_index_abin++;
-		for (int i = 0; i < TAM_PAGINA; i++) {
+		for (int i = 0; i < TAM_PAGINA; i++) { //Leitura dos itens nas páginas
 			comparacoes_index_abin++;
 			if(p_flag) printf("%d ",aux[i].chave);
 			it[i].chave = aux[i].chave;
 			it[i].pagina = j;
-			insere_abin(&pAB, &it[i]);
+			insere_abin(&pAB, &it[i]); //Inserção dos valores na página
 		}
 		j++;
 		transferencias_index_abin++;
 	}
 	
 	comparacoes_index_abin++;
-	if (resto != 0) {
+	if (resto != 0) { //Leitura da última página caso não esteja completa
 
 		fread(&aux, sizeof (Registro), resto, fp);
 
@@ -170,7 +170,8 @@ int ArvoreBin(int quantidade, char *filename, int chaveBusca, int *n_comparacoes
 
 	start = clock();
 	item res;
-	if (pesquisa_abin(&pAB, chaveBusca, &res)) {
+	if (pesquisa_abin(&pAB, chaveBusca, &res)) { //Feita a pesquisa binária em árvore na memória principal, se descobre a
+						     //posição dos dados em memória secundária , e uma pesquisa sequencial é feita lá.
 
 		long deslocamento;
 		deslocamento = sizeof (Registro) * TAM_PAGINA * (res.pagina);
@@ -184,7 +185,7 @@ int ArvoreBin(int quantidade, char *filename, int chaveBusca, int *n_comparacoes
 		reg.chave = res.chave;        
 		
 		comparacoes_pesquisa_abin++;
-		if (res.pagina == resto / TAM_PAGINA) {
+		if (res.pagina == resto / TAM_PAGINA) { //Pesquisa sequencial dentro da página avaliando se a mesma está completa ou incompleta
 			comparacoes_pesquisa_abin++;
 			if (pesquisa_Sequencial(aux, &reg, resto)) {
 				*n_transferencias_index_abin = transferencias_index_abin;
@@ -200,7 +201,7 @@ int ArvoreBin(int quantidade, char *filename, int chaveBusca, int *n_comparacoes
 				return 1;
 			}
 
-		} else {
+		} else { // Caso da chave não ser encontrada dentro da estrutura da árvore binária
 			comparacoes_pesquisa_abin++;
 			if (pesquisa_Sequencial(aux, &reg, TAM_PAGINA)) {
 				*n_transferencias_index_abin = transferencias_index_abin;
