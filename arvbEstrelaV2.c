@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include "arvbEstrelaV2.h"
 
+
+
+//AS ALTERACOES FEITAS FORAM REFAZER OS METODOS DE INSERCAO DAS PAGINAS INTERNAS, EXCLUINDO TOTALMENTE A FUNCAO insereNaPag QUE O PROFESSOR TINHA FEITO
+//AI FALTA ADAPTAR O CODIGO PARA O REGISTRO DO TIPO CERTO E COLOCAR AS VARIAVEIS PRA CONTAR A QTE DE COMPARACOES E TRANSFERENCIAS
+//O CODIGO TA "RUIM" PQ ACABEI TENDO QUE FAZER TUDO DO ZERO KKKKKK AI O QUE TU VER QUE DA PRA MELHORAR PODE MEXER
+
+
 //Pesquisa quase identica ao slide, so mudou o tipo de retorno de void para Int
 int pesquisa(Registro *x, PontPag *pagina){
     int i;
@@ -48,22 +55,8 @@ void InsereAuxArvB(PontPag pagina, short *Cresceu, Chave *ChaveRetorno, PontPag 
             pagina->UU.U0.pi[j+1] = pagina->UU.U0.pi[j];
         }
         pagina->UU.U0.ni++;
-        /*
-        if(*ChaveRetorno == 16 && pagina->Pt == Interna){
-            for(int u = 0; u < pagina->UU.U0.pi[0]->UU.U1.ne; u++){
-                printf("1a Pagina [%d] = %d\n", u, pagina->UU.U0.pi[0]->UU.U1.re[u].chave);
-            }
-            for(int u = 0; u < (*pagRetorno)->UU.U1.ne; u++){
-                printf("DEBUG [%d] = %d\n", u, (*pagRetorno)->UU.U1.re[u].chave);
-            }
-        }
-        */
         pagina->UU.U0.ri[i] = *ChaveRetorno;
         pagina->UU.U0.pi[i+1] = *pagRetorno;
-        /*
-        printf("Chave = %d\n", *ChaveRetorno);
-        InsereNaPag(pagina, *ChaveRetorno, *pagRetorno);
-        */
         *Cresceu = 0;
         return;
     }
@@ -254,25 +247,3 @@ void Insere(Registro x, PontPag *arvore){
     }
     return;
 }
-/*
-void Imprime(PontPag arvore){
-    if(arvore == NULL){
-        printf("Pagina Vazia ");
-        return;
-    }
-    if(arvore->Pt == Interna){
-        for(int i = 1; i <= arvore->UU.U0.ni; i++){
-            Imprime(arvore->UU.U0.pi[i-1]);
-            for(int j = 0; j < arvore->UU.U0.ni; j++)
-                printf("%d ", arvore->UU.U0.ri[j]);
-        }
-    }
-    else{
-        printf("PAG EXT: ");
-        for(int i = 0; i < arvore->UU.U1.ne; i++)
-            printf("%d ", arvore->UU.U1.re[i].chave);
-    }
-    printf("\n");
-    
-}
-*/
