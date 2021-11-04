@@ -55,26 +55,7 @@ void geradorArquivo(int quantidade){
     fclose(arq3);
 }
 
-void lerArquivo(){
-    FILE *arq = fopen("arquivo_rand.bin","rb");
-    int index[] = {17650, 182550, 221440, 339086, 511841, 597810, 704325, 890901, 903550, 971005};
-    reg x;
-    int i=0;
-    while(fread(&x, sizeof(x), 1, arq) == 1){
-        for(int j=0;j<10;j++){
-            if(i == index[j]){
-                printf("%d,",x.chave);
-            }
-        }            
-        i++;
-        if(i==1000000)
-            return;
-    }
-    fclose(arq);
-}
-
 int main(){
-    //geradorArquivo(1000000);
-    lerArquivo();
+    geradorArquivo(1000000);
     return 0;
 }
